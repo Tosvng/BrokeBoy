@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDocs, query, where, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDocs, query, where, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../models/firebase";
 import type { Goal, Contribution } from "../types";
 
@@ -27,6 +27,10 @@ export const fetchGoals = async (userId: string): Promise<Goal[]> => {
 
 export const deleteGoal = async (goalId: string) => {
   await deleteDoc(doc(db, "goals", goalId));
+};
+
+export const markGoalCompleted = async (goalId: string) => {
+  await updateDoc(doc(db, "goals", goalId), { completedAt: new Date().toISOString() });
 };
 
 export const addContribution = async (userId: string, goalId: string, amount: number) => {

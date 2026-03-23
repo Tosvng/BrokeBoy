@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Goal } from "../types";
-import { fetchGoals, saveGoal, deleteGoal } from "../api/goals";
+import { fetchGoals, saveGoal, deleteGoal, markGoalCompleted } from "../api/goals";
 
 export function useGoals(userId: string | undefined) {
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -36,5 +36,11 @@ export function useGoals(userId: string | undefined) {
     setGoals(prev => prev.filter(g => g.id !== id));
   };
 
-  return { goals, loading, addTarget, removeGoal, loadGoals };
+  const completeGoal = async (id: string) => {
+    await markGoalCompleted(id);
+    const completedAt = new Date().toISOString();
+    setGoals(prev => prev.map(g => g.id === id ? { ...g, completedAt } : g));
+  };
+
+  return { goals, loading, addTarget, removeGoal, completeGoal, loadGoals };
 }

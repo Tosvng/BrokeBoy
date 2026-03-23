@@ -6,6 +6,7 @@ export interface Goal {
   targetDate?: string; // ISO date string
   monthlyContribution?: number;
   createdAt: string; // ISO date string
+  completedAt?: string; // ISO date string, set when goal is marked complete
 }
 
 export interface Contribution {
