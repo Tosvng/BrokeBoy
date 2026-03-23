@@ -33,4 +33,5 @@ firestore.indexes.json
 stitch-design/
 CLAUDE.md
 DESIGN.md
+
 *.cache
