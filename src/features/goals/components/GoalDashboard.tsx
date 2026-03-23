@@ -18,24 +18,28 @@ export const GoalDashboard = ({
   onCreateGoal: () => void;
   variant?: "dashboard" | "goals"
 }) => {
-  const { goals, loading, removeGoal, completeGoal } = useGoals(userId);
+  const { goals, loading, completeGoal } = useGoals(userId);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const { contributions, loading: contributionsLoading } = useAllContributions(userId);
 
-  const totalNetWorth = contributions.reduce((sum, c) => sum + c.amount, 0);
+  // Only count contributions from active (non-completed) goals toward savings total
+  const activeGoalIds = new Set(goals.filter(g => !g.completedAt).map(g => g.id));
+  const activeContributions = contributions.filter(c => activeGoalIds.has(c.goalId));
 
-  // Calculate momentum (this month vs last month)
+  const totalNetWorth = activeContributions.reduce((sum, c) => sum + c.amount, 0);
+
+  // Calculate momentum (this month vs last month) using active goals only
   const now = new Date();
   const currentMonth = now.getMonth();
   const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
   const currentYear = now.getFullYear();
   const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
-  const currentMonthSaved = contributions
+  const currentMonthSaved = activeContributions
     .filter(c => { const d = new Date(c.date); return d.getMonth() === currentMonth && d.getFullYear() === currentYear; })
     .reduce((sum, c) => sum + c.amount, 0);
 
-  const lastMonthSaved = contributions
+  const lastMonthSaved = activeContributions
     .filter(c => { const d = new Date(c.date); return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear; })
     .reduce((sum, c) => sum + c.amount, 0);
     
@@ -113,7 +117,6 @@ export const GoalDashboard = ({
                       >
                         <GoalCard
                           goal={goal}
-                          onDelete={() => removeGoal(goal.id)}
                           onContribute={() => setSelectedGoal(goal)}
                           onComplete={() => completeGoal(goal.id)}
                         />
@@ -139,7 +142,6 @@ export const GoalDashboard = ({
                       >
                         <GoalCard
                           goal={goal}
-                          onDelete={() => removeGoal(goal.id)}
                           onContribute={() => setSelectedGoal(goal)}
                           completed
                         />
@@ -156,7 +158,7 @@ export const GoalDashboard = ({
       {/* Chart Section */}
       {variant === "dashboard" && (
         <div className="px-5">
-          <ContributionChart contributions={contributions} />
+          <ContributionChart contributions={activeContributions} />
         </div>
       )}
 
@@ -203,13 +205,11 @@ export const GoalDashboard = ({
 
 const GoalCard = ({
   goal,
-  onDelete,
   onContribute,
   onComplete,
   completed = false,
 }: {
   goal: Goal;
-  onDelete: () => void;
   onContribute: () => void;
   onComplete?: () => void;
   completed?: boolean;
@@ -227,15 +227,8 @@ const GoalCard = ({
     : null;
 
   return (
-    <div className={`card-surface p-5 flex flex-col gap-4 relative group ${completed ? "opacity-75" : ""}`}>
-      <button
-        onClick={onDelete}
-        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-error text-xs font-semibold"
-      >
-        Remove
-      </button>
-
-      <div className="flex items-start justify-between pr-12">
+    <div className={`card-surface p-5 flex flex-col gap-4 ${completed ? "opacity-75" : ""}`}>
+      <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
             {completed && (
