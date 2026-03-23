@@ -1,0 +1,5 @@
+firebase.json
+firebase.rules
+firebase.indexes.json
+.firebaserc
+.env*
