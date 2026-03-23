@@ -18,7 +18,7 @@ export const GoalDashboard = ({
   onCreateGoal: () => void;
   variant?: "dashboard" | "goals"
 }) => {
-  const { goals, loading, completeGoal } = useGoals(userId);
+  const { goals, loading, removeGoal, completeGoal } = useGoals(userId);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const { contributions, loading: contributionsLoading } = useAllContributions(userId);
 
@@ -117,6 +117,7 @@ export const GoalDashboard = ({
                       >
                         <GoalCard
                           goal={goal}
+                          onDelete={() => removeGoal(goal.id)}
                           onContribute={() => setSelectedGoal(goal)}
                           onComplete={() => completeGoal(goal.id)}
                         />
@@ -142,6 +143,7 @@ export const GoalDashboard = ({
                       >
                         <GoalCard
                           goal={goal}
+                          onDelete={() => removeGoal(goal.id)}
                           onContribute={() => setSelectedGoal(goal)}
                           completed
                         />
@@ -205,11 +207,13 @@ export const GoalDashboard = ({
 
 const GoalCard = ({
   goal,
+  onDelete,
   onContribute,
   onComplete,
   completed = false,
 }: {
   goal: Goal;
+  onDelete: () => void;
   onContribute: () => void;
   onComplete?: () => void;
   completed?: boolean;
@@ -249,9 +253,20 @@ const GoalCard = ({
             </p>
           )}
         </div>
-        <div className="text-right">
-          <p className="font-sans font-bold text-on-surface">{formatCurrency(currentSaved)}</p>
-          <p className="body-sm text-on-surface-variant">of {formatCurrency(goal.targetAmount)}</p>
+        <div className="flex items-start gap-3">
+          <div className="text-right">
+            <p className="font-sans font-bold text-on-surface">{formatCurrency(currentSaved)}</p>
+            <p className="body-sm text-on-surface-variant">of {formatCurrency(goal.targetAmount)}</p>
+          </div>
+          <button
+            onClick={onDelete}
+            className="p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-error/10 active:bg-error/20 transition-colors"
+            aria-label="Remove goal"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+          </button>
         </div>
       </div>
 
