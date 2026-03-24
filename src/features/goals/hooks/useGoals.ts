@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Goal } from "../types";
-import { fetchGoals, saveGoal, deleteGoal, markGoalCompleted } from "../api/goals";
+import { fetchGoals, saveGoal, deleteGoal, markGoalCompleted, updateGoal } from "../api/goals";
 
 export function useGoals(userId: string | undefined) {
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -42,5 +42,10 @@ export function useGoals(userId: string | undefined) {
     setGoals(prev => prev.map(g => g.id === id ? { ...g, completedAt } : g));
   };
 
-  return { goals, loading, addTarget, removeGoal, completeGoal, loadGoals };
+  const updateTarget = async (id: string, updates: { name?: string; targetAmount?: number; targetDate?: string | null; monthlyContribution?: number | null }) => {
+    await updateGoal(id, updates);
+    setGoals(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
+  };
+
+  return { goals, loading, addTarget, removeGoal, completeGoal, updateTarget, loadGoals };
 }

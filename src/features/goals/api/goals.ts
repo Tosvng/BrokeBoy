@@ -33,6 +33,15 @@ export const markGoalCompleted = async (goalId: string) => {
   await updateDoc(doc(db, "goals", goalId), { completedAt: new Date().toISOString() });
 };
 
+export const updateGoal = async (goalId: string, updates: { name?: string; targetAmount?: number; targetDate?: string | null; monthlyContribution?: number | null }) => {
+  const payload: Record<string, unknown> = {};
+  if (updates.name !== undefined) payload.name = updates.name;
+  if (updates.targetAmount !== undefined) payload.targetAmount = updates.targetAmount;
+  if ("targetDate" in updates) payload.targetDate = updates.targetDate ?? null;
+  if ("monthlyContribution" in updates) payload.monthlyContribution = updates.monthlyContribution ?? null;
+  await updateDoc(doc(db, "goals", goalId), payload);
+};
+
 export const addContribution = async (userId: string, goalId: string, amount: number) => {
   const newRef = doc(collection(db, "contributions"));
   const contribution: Contribution = {
