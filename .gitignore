@@ -24,9 +24,6 @@ dist-ssr
 *.sw?
 
 firebase-deploy.md
-firebase.json
-firestore.rules
-firestore.indexes.json
 .firebaserc
 .env*
 
