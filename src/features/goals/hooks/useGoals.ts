@@ -44,7 +44,15 @@ export function useGoals(userId: string | undefined) {
 
   const updateTarget = async (id: string, updates: { name?: string; targetAmount?: number; targetDate?: string | null; monthlyContribution?: number | null }) => {
     await updateGoal(id, updates);
-    setGoals(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
+    setGoals(prev => prev.map(g => {
+      if (g.id !== id) return g;
+      const next: Goal = { ...g };
+      if (updates.name !== undefined) next.name = updates.name;
+      if (updates.targetAmount !== undefined) next.targetAmount = updates.targetAmount;
+      if ("targetDate" in updates) next.targetDate = updates.targetDate ?? undefined;
+      if ("monthlyContribution" in updates) next.monthlyContribution = updates.monthlyContribution ?? undefined;
+      return next;
+    }));
   };
 
   return { goals, loading, addTarget, removeGoal, completeGoal, updateTarget, loadGoals };
