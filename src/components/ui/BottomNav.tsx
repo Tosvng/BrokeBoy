@@ -1,11 +1,4 @@
-import React from "react";
-
-type BottomNavTab = "dashboard" | "goals" | "activity" | "profile";
-
-interface BottomNavProps {
-  activeTab: BottomNavTab;
-  onTabChange: (tab: BottomNavTab) => void;
-}
+import { NavLink } from "react-router-dom";
 
 const DashboardIcon = ({ active }: { active: boolean }) => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -37,33 +30,37 @@ const ProfileIcon = ({ active }: { active: boolean }) => (
   </svg>
 );
 
-const tabs: { id: BottomNavTab; label: string; Icon: React.FC<{ active: boolean }> }[] = [
-  { id: "dashboard", label: "Dashboard", Icon: DashboardIcon },
-  { id: "goals", label: "Goals", Icon: GoalsIcon },
-  { id: "activity", label: "Activity", Icon: ActivityIcon },
-  { id: "profile", label: "Profile", Icon: ProfileIcon },
-];
+const tabs = [
+  { to: "/", label: "Dashboard", Icon: DashboardIcon },
+  { to: "/goals", label: "Goals", Icon: GoalsIcon },
+  { to: "/activity", label: "Activity", Icon: ActivityIcon },
+  { to: "/profile", label: "Profile", Icon: ProfileIcon },
+] as const;
 
-export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) => {
+export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-white/5">
       <div className="flex items-center justify-around px-2 py-2 max-w-lg mx-auto">
-        {tabs.map(({ id, label, Icon }) => {
-          const isActive = activeTab === id;
-          return (
-            <button
-              key={id}
-              onClick={() => onTabChange(id)}
-              className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all ${
+        {tabs.map(({ to, label, Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === "/"}
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all ${
                 isActive ? "text-gold" : "text-text-secondary"
-              }`}
-            >
-              <Icon active={isActive} />
-              <span className="text-[10px] font-semibold tracking-wide">{label}</span>
-            </button>
-          );
-        })}
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Icon active={isActive} />
+                <span className="text-[10px] font-semibold tracking-wide">{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
       </div>
     </nav>
   );
-};
+}

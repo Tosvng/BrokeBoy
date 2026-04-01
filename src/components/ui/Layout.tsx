@@ -4,7 +4,6 @@ import { useTheme } from "./ThemeProvider";
 interface LayoutProps {
   children: React.ReactNode;
   hideNav?: boolean;
-  activeTab?: string;
   onFab?: () => void;
 }
 
